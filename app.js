@@ -22,12 +22,12 @@ commander.command('decode <LOCATION>')
 
     });
 
-commander.command('parse <SONG_ID>')
-    .action((songId, command) => {
+commander.command('parse <SONG_ID...>')
+    .action((songIds, command) => {
 
         Flow(function*(cb, u) {
 
-            const url = `http://www.xiami.com/song/playlist/id/${ songId }/object_name/default/object_id/0/cat/json?_ksTS=${ Date.now() }_${ jsonpCount++ }&callback=jsonp${ jsonpCount++ }`;
+            const url = `http://www.xiami.com/song/playlist/id/${ songIds.join('%2C') }/object_name/default/object_id/0/cat/json?_ksTS=${ Date.now() }_${ jsonpCount++ }&callback=jsonp${ jsonpCount++ }`;
 
             debug('url:', url);
 
