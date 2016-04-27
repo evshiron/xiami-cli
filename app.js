@@ -197,7 +197,7 @@ commander.command('sync <USERNAME>')
 
                 Database.Songs.findOne({
 
-                    'xiami.songId': songId,
+                    songId: songId,
 
                 }, (err, song) => {
 
@@ -207,12 +207,8 @@ commander.command('sync <USERNAME>')
 
                     Database.Songs.insert({
 
-                        xiami: {
-
-                            songId: songId,
-                            isAlive: isAlive,
-
-                        },
+                        songId: songId,
+                        isAlive: isAlive,
 
                     }, callback);
 
@@ -224,7 +220,7 @@ commander.command('sync <USERNAME>')
 
                 Database.Songs.findOne({
 
-                    'xiami.songId': songId,
+                    songId: songId,
 
                 }, (err, song) => {
 
@@ -234,7 +230,7 @@ commander.command('sync <USERNAME>')
 
                     Database.Songs.update({
 
-                        'xiami.songId': songId,
+                        songId: songId,
 
                     }, {
 
@@ -244,10 +240,10 @@ commander.command('sync <USERNAME>')
                             album: songDetail.album,
                             artist: songDetail.artist,
 
-                            'xiami.songId': songDetail.songId,
-                            'xiami.albumId': songDetail.albumId,
-                            'xiami.albumImageUrl': songDetail.albumImageUrl,
-                            'xiami.artistId': songDetail.artistId,
+                            songId: songDetail.songId,
+                            albumId: songDetail.albumId,
+                            albumImageUrl: songDetail.albumImageUrl,
+                            artistId: songDetail.artistId,
 
                         },
 
@@ -284,14 +280,14 @@ commander.command('sync <USERNAME>')
 commander.command('list-songs')
     .option('-C, --count-only')
     .option('-a, --album')
-    .option('-X, --xiami')
-    .option('--xiami-dead-only')
+    .option('-m, --meta')
+    .option('--dead-only')
     .action((command) => {
 
         Flow(function*(cb, u) {
 
             var [err, songs] = yield Database.Songs.find({
-                'xiami.isAlive': !command.xiamiDeadOnly,
+                isAlive: !command.deadOnly,
             }, cb);
             if(err) {
                 console.error(err);
@@ -307,7 +303,14 @@ commander.command('list-songs')
 
                 console.log(i, song.title, song.artist);
                 if(command.album) console.log('album:', song.album);
-                if(command.xiami) console.log('xiami:', song.xiami);
+                if(command.meta) {
+
+                    console.log('songId:', song.songId);
+                    console.log('albumId:', song.albumId);
+                    console.log('albumImageUrl:', song.albumImageUrl);
+                    console.log('artistId:', song.artistId);
+
+                }
 
             }
 
