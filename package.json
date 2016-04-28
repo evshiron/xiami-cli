@@ -7,6 +7,9 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node --harmony-destructuring --harmony-rest-parameters app.js"
   },
+  "bin": {
+    "xiami-cli": "./bin/xiami-cli"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/evshiron/xiami-cli.git"

@@ -1,0 +1,4 @@
+#!/usr/bin/env node --harmony-destructuring --harmony-rest-parameters
+
+require('../app');
+
