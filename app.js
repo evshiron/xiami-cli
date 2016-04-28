@@ -41,11 +41,12 @@ commander.command('decode <LOCATION>')
     });
 
 commander.command('parse <SONG_ID...>')
+    .option('-d, --dead')
     .action((songIds, command) => {
 
         Flow(function*(cb, u) {
 
-            var [err, data] = yield Util.ParseSongByIds(songIds, cb);
+            var [err, data] = yield Util.ParseSongByIds(songIds, command.dead ? false : true, cb);
 
             console.dir(data);
 
@@ -272,7 +273,15 @@ commander.command('sync <USERNAME>')
 
             }
 
-            var [err, songs] = yield Util.ParseSongByIds(aliveSongIds, cb);
+            var [err, songs] = yield Util.ParseSongByIds(aliveSongIds, true, cb);
+
+            for(let song of songs) {
+
+                insertSongDetail(song.songId, song);
+
+            }
+
+            var [err, songs] = yield Util.ParseSongByIds(deadSongIds, false, cb);
 
             for(let song of songs) {
 
@@ -336,6 +345,7 @@ commander.command('cache [SONG_ID...]')
                 let [err, songs] = yield Database.Songs.find({
                     isAlive: !command.deadOnly,
                 }, cb);
+
                 if(err) {
                     console.error(err);
                     return;
@@ -346,7 +356,7 @@ commander.command('cache [SONG_ID...]')
 
             }
 
-            var [err, songs] = yield Util.ParseSongByIds(songIds, cb);
+            var [err, songs] = yield Util.ParseSongByIds(songIds, true, cb);
             if(err) {
                 console.error(err);
                 return;
