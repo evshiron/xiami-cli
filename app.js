@@ -1,6 +1,12 @@
 
 'use strict';
 
+const DIR_CACHES = './caches/';
+
+const fs = require('fs');
+const url = require('url');
+const path = require('path');
+
 const debug = require('debug')('app');
 
 const commander = require('commander');
@@ -16,13 +22,14 @@ const cheerio = require('cheerio');
 
 const CookieJar = require('tough-cookie').CookieJar;
 
+const mkdirp = require('mkdirp');
+mkdirp.sync(DIR_CACHES);
+
 const Flow = require('node-flow');
 
 const Database = require('./lib/database');
 
 const Util = require('./lib/util');
-
-var jsonpCount = 1000;
 
 commander.version(require('./package.json').version);
 
@@ -309,6 +316,92 @@ commander.command('list-songs')
                     console.log('albumId:', song.albumId);
                     console.log('albumImageUrl:', song.albumImageUrl);
                     console.log('artistId:', song.artistId);
+
+                }
+
+            }
+
+        });
+
+    });
+
+commander.command('cache [SONG_ID...]')
+    .option('-A, --all')
+    .action((songIds, command) => {
+
+        Flow(function*(cb, u) {
+
+            if(songIds.length == 0 && command.all) {
+
+                let [err, songs] = yield Database.Songs.find({
+                    isAlive: !command.deadOnly,
+                }, cb);
+                if(err) {
+                    console.error(err);
+                    return;
+                }
+
+                console.log('Count:', songs.length);
+                songIds = songs.map((song, index, songs) => song.songId);
+
+            }
+
+            var [err, songs] = yield Util.ParseSongByIds(songIds, cb);
+            if(err) {
+                console.error(err);
+                return;
+            }
+
+            for(let i = 0; i < songs.length; i++) {
+
+                let song = songs[i];
+
+                debug('song:', song);
+
+                let cache = path.join(DIR_CACHES, path.basename(url.parse(song.resourceUrl).pathname));
+
+                debug('cache:', cache);
+
+                {
+
+                    let [err, res, body] = yield request(song.resourceUrl, {
+                        encoding: null,
+                    }, cb).pipe(fs.createWriteStream(cache));
+
+                    if(err) {
+                        console.error(err);
+                        return;
+                    }
+
+                }
+
+                {
+
+                    let [err] = yield Database.Songs.findOne({
+
+                        songId: song.songId,
+
+                    }, (err, song) => {
+
+                        if(err) return callback(err);
+
+                        if(!song) return callback('ERROR_SONG_NOT_EXIST');
+
+                        Database.Songs.update({
+
+                            songId: song.songId,
+
+                        }, {
+
+                            $set: {
+
+                                cache: cache,
+
+                            },
+
+                        }, cb);
+
+                    });
 
                 }
 
