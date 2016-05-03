@@ -38,6 +38,12 @@ $ xiami-cli login <USERNAME> <PASSWORD>
 # Synchronize all favorite songs of a logged user.
 $ xiami-cli sync <USERNAME>
 
+# List recommended songs of a logged user.
+$ xiami-cli list-recommended <USERNAME>
+
+# List synchronized favorite songs.
+$ xiami-cli list-songs
+
 # Cache song resources by songIds.
 $ xiami-cli cache <SONG_ID...>
 ```
