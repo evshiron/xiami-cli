@@ -10,7 +10,7 @@ const commander = require('commander');
 const mkdirp = require('mkdirp');
 mkdirp.sync(DIR_CACHES);
 
-const { Decode, Parse, Login, Sync, ListSongs, Cache } = require('./lib/actions');
+const { Decode, Parse, Login, Sync, ListRecommends, ListSongs, Cache } = require('./lib/actions');
 
 commander.version(require('./package.json').version);
 
@@ -26,6 +26,11 @@ commander.command('login <USERNAME> <PASSWORD>')
 
 commander.command('sync <USERNAME>')
     .action(Sync);
+
+commander.command('list-recommends <USERNAME>')
+    .option('-a, --album')
+    .option('-m, --meta')
+    .action(ListRecommends);
 
 commander.command('list-songs')
     .option('-C, --count-only')
