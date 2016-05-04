@@ -14,6 +14,9 @@ const { Decode, Parse, Login, Sync, ListRecommends, ListSongs, Cache } = require
 
 commander.version(require('./package.json').version);
 
+commander.command('*')
+    .action((command) => commander.help());
+
 commander.command('decode <LOCATION>')
     .action(Decode);
 
